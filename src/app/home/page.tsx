@@ -2,6 +2,7 @@
 import MenuCard from "@/components/MenuCard";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { handleAddToCart } from "../menu/page";
 
 export default function HomePage() {
   const [menu, setMenu] = useState<any[]>([]);
@@ -51,6 +52,7 @@ export default function HomePage() {
               name={item.name}
               price={item.price}
               images={item.images}
+              onAddToCart={(id) => handleAddToCart(id)}
             />
           ))}
         </div>
