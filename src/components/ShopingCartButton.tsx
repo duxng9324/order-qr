@@ -109,11 +109,11 @@ export function ShoppingCartButton() {
 
         {/* Footer */}
         <div className="p-4 border-t border-gray-200 flex justify-between items-center ">
-          <p className="font-semibold">
+          <p className="font-semibold text-red-500">
             Tổng cộng: {totalPrice.toLocaleString()}₫
           </p>
           <button className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-400 transition">
-            Thanh toán
+            Đặt Món
           </button>
         </div>
       </div>
