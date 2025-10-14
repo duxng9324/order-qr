@@ -1,13 +1,13 @@
 "use client";
+import { useCart } from "@/components/CartContext";
 import MenuCard from "@/components/MenuCard";
+import { useNotification } from "@/components/useNotification";
 import { useEffect, useState } from "react";
-
-export function handleAddToCart(id: string | number) {    
-  console.log("Đã thêm món:", id);
-}
 
 export default function MenuPage() {
   const [menu, setMenu] = useState<any[]>([]);
+  const { addToCart } = useCart();
+  const { showNotification, NotificationComponent } = useNotification();
 
   useEffect(() => {
     fetch("/api/menu")
@@ -18,14 +18,22 @@ export default function MenuPage() {
       .then(setMenu)
       .catch((err) => {
         console.error("Lỗi fetch API:", err);
-        alert("Không kết nối được tới API menu!");
+        showNotification(`Lỗi: Không thể lấy menu`, "error");
       });
   }, []);
 
-
+  const handleAddToCart = (item: any) => {
+    try {
+      addToCart(item);
+      showNotification(`${item.name} đã được thêm vào giỏ hàng!`, "success");
+    } catch (err) {
+      showNotification(`Lỗi: Không thể thêm ${item.name} vào giỏ!`, "error");
+    }
+  };
 
   return (
     <div className="p-4 sm:p-6 md:p-8 max-w-7xl mx-auto">
+      <NotificationComponent></NotificationComponent>
       <h1 className="text-2xl md:text-3xl font-bold mb-6 text-center text-gray-800">
         🍔 Our Menu
       </h1>
@@ -40,7 +48,7 @@ export default function MenuPage() {
               name={menuItem.name}
               price={menuItem.price}
               images={menuItem.images}
-              onAddToCart={(id) => handleAddToCart(id)}
+              onAddToCart={() => handleAddToCart(menuItem)}
             />
           ))}
       </div>

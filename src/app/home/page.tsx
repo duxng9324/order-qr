@@ -1,11 +1,14 @@
 "use client";
+import { useCart } from "@/components/CartContext";
 import MenuCard from "@/components/MenuCard";
+import { useNotification } from "@/components/useNotification";
 import Link from "next/link";
 import { useEffect, useState } from "react";
-import { handleAddToCart } from "../menu/page";
 
 export default function HomePage() {
   const [menu, setMenu] = useState<any[]>([]);
+  const { addToCart } = useCart();
+  const { showNotification, NotificationComponent } = useNotification();
 
   useEffect(() => {
     fetch("/api/menu")
@@ -14,8 +17,18 @@ export default function HomePage() {
       .catch(() => console.error("Không lấy được menu"));
   }, []);
 
+  const handleAddToCart = (item: any) => {
+    try {
+      addToCart(item);
+      showNotification(`${item.name} đã được thêm vào giỏ hàng!`, "success");
+    } catch (err) {
+      showNotification(`Lỗi: Không thể thêm ${item.name} vào giỏ!`, "error");
+    }
+  };
+
   return (
     <div className="bg-base-100">
+      <NotificationComponent></NotificationComponent>
       {/* Hero Section */}
       <section className="bg-gradient-to-r from-orange-500 to-yellow-400 text-white py-20 text-center">
         <h1 className="text-4xl md:text-5xl font-extrabold mb-4">
@@ -52,7 +65,7 @@ export default function HomePage() {
               name={item.name}
               price={item.price}
               images={item.images}
-              onAddToCart={(id) => handleAddToCart(id)}
+              onAddToCart={() => handleAddToCart(item)}
             />
           ))}
         </div>
