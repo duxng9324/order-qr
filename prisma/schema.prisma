@@ -1,0 +1,91 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id       String   @id @default(auto()) @map("_id") @db.ObjectId
+  name     String
+  email    String   @unique
+  phone    String?  @unique
+  password String
+  role     RoleType
+
+  orders Order[]
+}
+
+model Table {
+  id        String @id @default(auto()) @map("_id") @db.ObjectId
+  name      String @unique
+  qrCodeUrl String
+
+  orders Order[]
+}
+
+model MenuItem {
+  id         String               @id @default(auto()) @map("_id") @db.ObjectId
+  name       String
+  price      Float
+  images     String[]   @default([])
+  categories CategoryOnMenuItem[]
+
+  orderItems OrderItem[]
+}
+
+model Category {
+  id          String               @id @default(auto()) @map("_id") @db.ObjectId
+  name        String
+  description String?
+  menuItems   CategoryOnMenuItem[]
+}
+
+model CategoryOnMenuItem {
+  id         String @id @default(auto()) @map("_id") @db.ObjectId
+  menuItemId String @db.ObjectId
+  categoryId String @db.ObjectId
+
+  menuItem MenuItem @relation(fields: [menuItemId], references: [id])
+  category Category @relation(fields: [categoryId], references: [id])
+}
+
+model Order {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  tableId String @db.ObjectId
+  table   Table  @relation(fields: [tableId], references: [id])
+
+  userId String? @db.ObjectId
+  user   User?   @relation(fields: [userId], references: [id])
+
+  status    OrderStatus @default(PENDING)
+  createdAt DateTime    @default(now())
+
+  items OrderItem[]
+  note    String
+}
+
+model OrderItem {
+  id      String @id @default(auto()) @map("_id") @db.ObjectId
+  orderId String @db.ObjectId
+  order   Order  @relation(fields: [orderId], references: [id])
+
+  menuItemId String   @db.ObjectId
+  menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
+
+  quantity Int
+}
+
+enum RoleType {
+  CUSTOMER
+  STAFF
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  COOKING
+  DONE
+}
