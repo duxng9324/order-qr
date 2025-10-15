@@ -82,6 +82,7 @@ model OrderItem {
   menuItemId String   @db.ObjectId
   menuItem   MenuItem @relation(fields: [menuItemId], references: [id])
 
+  note     String
   quantity Int
 }
 
