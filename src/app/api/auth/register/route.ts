@@ -11,12 +11,18 @@ export async function POST(req: Request) {
     const { name, email, phone, password } = await req.json();
 
     if (!email || !password) {
-      return NextResponse.json({ error: "Thiếu tên hoặc mật khẩu!" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Thiếu tên hoặc mật khẩu!" },
+        { status: 400 }
+      );
     }
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
-      return NextResponse.json({ error: "Email người dùng đã tồn tại!" }, { status: 400 });
+      return NextResponse.json(
+        { error: "Email người dùng đã tồn tại!" },
+        { status: 400 }
+      );
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -25,21 +31,33 @@ export async function POST(req: Request) {
       data: {
         name,
         password: hashedPassword,
-        email, 
+        email,
         phone,
-        role: "CUSTOMER", 
+        role: "CUSTOMER",
       },
     });
 
     const token = jwt.sign(
-      { id: newUser.id, name: newUser.name, role: newUser.role, email: newUser.email, phone: newUser.phone },
+      {
+        id: newUser.id,
+        name: newUser.name,
+        role: newUser.role,
+        email: newUser.email,
+        phone: newUser.phone,
+      },
       JWT_SECRET,
       { expiresIn: "1d" }
     );
 
     return NextResponse.json({
       message: "Đăng ký thành công!",
-      user: { id: newUser.id, name: newUser.name, email: newUser.email, role: newUser.role, phone: newUser.phone },
+      user: {
+        id: newUser.id,
+        name: newUser.name,
+        email: newUser.email,
+        role: newUser.role,
+        phone: newUser.phone,
+      },
       token,
     });
   } catch (error) {

@@ -60,8 +60,8 @@ export default function RootLayout({
             <div className="max-w-6xl mx-auto px-4 py-6 grid md:grid-cols-2 gap-6">
               <div>
                 <h3 className="text-white font-semibold mb-2">Liên hệ</h3>
-                <p>Email: support@qrfood.vn</p>
-                <p>Hotline: 0123 456 789</p>
+                <p>Email: ongdungdz@gmail.com</p>
+                <p>Hotline: 0343389956</p>
                 <p>Địa chỉ: 123 Đường Ẩm Thực, Hà Nội</p>
               </div>
               <div className="text-right md:text-left">

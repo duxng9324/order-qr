@@ -8,8 +8,15 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 export async function POST(req: NextRequest) {
   const { email, password } = await req.json();
 
+  if (!email || !password) {
+    return NextResponse.json(
+      { error: "Thiếu thông tin đăng nhập" },
+      { status: 400 }
+    );
+  }
+
   const user = await prisma.user.findUnique({ where: { email } });
-if (!user) {
+  if (!user) {
     return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
@@ -19,7 +26,7 @@ if (!user) {
   }
 
   const token = jwt.sign(
-    { id: user.id, name: user.name,email: user.email, role: user.role },
+    { id: user.id, name: user.name, email: user.email, role: user.role },
     JWT_SECRET,
     { expiresIn: "1d" }
   );

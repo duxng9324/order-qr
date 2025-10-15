@@ -5,8 +5,9 @@ const prisma = new PrismaClient();
 
 export async function GET(req: Request, {params}: {params: {id: string}}) {
     try {
+        const id = await params.id;
         const order = await prisma.order.findUnique({
-            where: {id : params.id},
+            where: {id},
             select: {id: true, tableId: true, table: true, userId: true, user: true, status: true, items: true, note: true}
         })
         if(!order){
@@ -20,7 +21,7 @@ export async function GET(req: Request, {params}: {params: {id: string}}) {
 
 export async function PATCH(req: Request, { params }: { params: { id: string } }) {
   const { status } = await req.json();
-  const { id } = params;
+  const id = await params.id;
 
   const updatedOrder = await prisma.order.update({
     where: { id },
@@ -32,8 +33,9 @@ export async function PATCH(req: Request, { params }: { params: { id: string } }
 
 export async function DELETE(req: Request, {params}: {params: {id: string}}) {
     try {
+        const id = await params.id;
         const delOrder = await prisma.order.delete({
-            where: {id: params.id}
+            where: {id}
         })
         return NextResponse.json(delOrder)
     } catch (error){
