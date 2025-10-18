@@ -1,12 +1,12 @@
 "use client";
 
 import { ShoppingCart, Plus, Minus, Trash } from "lucide-react";
-import { useState } from "react";
-import { useCart } from "../app/context/CartContext";
+import { useEffect, useState } from "react";
+import { useCart } from "../context/CartContext";
 import { useRouter } from "next/navigation";
 import { createOrder } from "@/composable/services/orderServices";
 import { useNotification } from "@/components/useNotification";
-import { useOrderContext } from "@/app/context/OrderContext";
+import { useOrderContext } from "@/context/OrderContext";
 
 interface OrderData {
   tableId: string;
@@ -25,7 +25,13 @@ export function ShoppingCartButton() {
   const { showNotification, NotificationComponent } = useNotification();
   const { addOrderId } = useOrderContext();
   const router = useRouter();
-  const tableId = localStorage.getItem("tableId");
+  const [tableId, setTableId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setTableId(localStorage.getItem("tableId"));
+    }
+  }, []);
 
   const totalPrice = cart.reduce(
     (sum: any, item: any) => sum + item.price * item.quantity,
@@ -162,7 +168,8 @@ export function ShoppingCartButton() {
           <p className="font-semibold text-red-500">
             Tổng cộng: {totalPrice.toLocaleString()}₫
           </p>
-          <button disabled={!tableId || cart.length === 0}
+          <button
+            disabled={!tableId || cart.length === 0}
             className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-400 transition"
             onClick={handleOrder}
           >

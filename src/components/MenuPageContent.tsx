@@ -1,18 +1,27 @@
 "use client";
-import { useCart } from "@/app/context/CartContext";
+import { useCart } from "@/context/CartContext";
 import MenuCard from "@/components/MenuCard";
 import { useNotification } from "@/components/useNotification";
 import { getListMenu } from "@/composable/services/menuServices";
 import { getTableById } from "@/composable/services/tableServices";
-import { useParams } from "next/navigation";
+import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-export default function MenuPage() {
+export default function MenuPageContent() {
   const [menu, setMenu] = useState<any[]>([]);
   const [table, setTable] = useState<any>();
   const param = useParams<any>();
   const { addToCart } = useCart();
   const { showNotification, NotificationComponent } = useNotification();
+  const router = useRouter();
+  const pathname = usePathname();
+
+  useEffect(() => {
+    const storedTableId = localStorage.getItem("tableId");
+    if (!param?.tableId && storedTableId) {
+      router.replace(`/menu/table/${storedTableId}`);
+    }
+  }, [param?.tableId, router]);
 
   useEffect(() => {
     const fetchMenu = async () => {
@@ -30,8 +39,8 @@ export default function MenuPage() {
       localStorage.setItem("tableId", tableData?.id);
     };
 
-    fetchTable(param.id);
-  }, [param.id]);
+    fetchTable(param.tableId);
+  }, [param.tableId]);
 
   const handleAddToCart = (item: any) => {
     try {
@@ -40,6 +49,11 @@ export default function MenuPage() {
     } catch (err) {
       showNotification(`Lỗi: Không thể thêm ${item.name} vào giỏ!`, "error");
     }
+  };
+
+  const handleNavigate = (id: string) => {
+    const cleanPath = pathname.endsWith("/") ? pathname.slice(0, -1) : pathname;
+    router.push(`${cleanPath}/item/${id}`);
   };
 
   return (
@@ -74,6 +88,7 @@ export default function MenuPage() {
               price={menuItem.price}
               images={menuItem.images}
               onAddToCart={() => handleAddToCart(menuItem)}
+              onClick={() => handleNavigate(menuItem.id)}
             />
           ))}
       </div>

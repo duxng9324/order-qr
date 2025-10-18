@@ -2,7 +2,7 @@
 
 import { getOrderById } from "@/composable/services/orderServices";
 import { useEffect, useState } from "react";
-import { useOrderContext } from "../context/OrderContext";
+import { useOrderContext } from "../../context/OrderContext";
 
 export default function OrderPage() {
   const { orderIds, clearOrders } = useOrderContext();

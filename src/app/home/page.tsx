@@ -1,5 +1,5 @@
 "use client";
-import { useCart } from "@/app/context/CartContext";
+import { useCart } from "@/context/CartContext";
 import MenuCard from "@/components/MenuCard";
 import { useNotification } from "@/components/useNotification";
 import Link from "next/link";
