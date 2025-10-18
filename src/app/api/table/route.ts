@@ -37,7 +37,7 @@ export async function POST(req: Request) {
   });
 
   const baseUrl = BASE_URL;
-  const qrUrl = `${baseUrl}/menu/${table.id}`;
+  const qrUrl = `${baseUrl}/menu/table/${table.id}`;
   const qrCode = await QRCode.toDataURL(qrUrl);
 
   const qr = await prisma.qR.create({

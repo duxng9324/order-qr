@@ -3,10 +3,10 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { itemId: string } }
 ) {
   try {
-    const id = await params.id;
+    const id = await params.itemId;
     const orderItem = await prisma.orderItem.findMany({
       where: { id },
       select: {
@@ -29,10 +29,10 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { itemId: string } }
 ) {
   try {
-    const id = await params.id;
+    const id = await params.itemId;
     const { quantity } = await req.json();
     const updateOrderItem = await prisma.orderItem.update({
       where: { id },
@@ -57,10 +57,10 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: { itemId: string } }
 ) {
   try {
-    const id = await params.id;
+    const id = await params.itemId;
     const delOrderItem = await prisma.orderItem.delete({
       where: { id },
     });

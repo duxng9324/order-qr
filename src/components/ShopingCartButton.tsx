@@ -1,21 +1,74 @@
 "use client";
 
 import { ShoppingCart, Plus, Minus, Trash } from "lucide-react";
-import { useState } from "react";
-import { useCart } from "./CartContext";
+import { useEffect, useState } from "react";
+import { useCart } from "../context/CartContext";
+import { useRouter } from "next/navigation";
+import { createOrder } from "@/composable/services/orderServices";
+import { useNotification } from "@/components/useNotification";
+import { useOrderContext } from "@/context/OrderContext";
+
+interface OrderData {
+  tableId: string;
+  userId?: string;
+  note?: string;
+  items: {
+    menuId: string;
+    quantity: number;
+    note?: string;
+  }[];
+}
 
 export function ShoppingCartButton() {
   const [open, setOpen] = useState(false);
   const { cart, updateQuantity, removeFromCart, updateNote } = useCart();
+  const { showNotification, NotificationComponent } = useNotification();
+  const { addOrderId } = useOrderContext();
+  const router = useRouter();
+  const [tableId, setTableId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setTableId(localStorage.getItem("tableId"));
+    }
+  }, []);
 
   const totalPrice = cart.reduce(
     (sum: any, item: any) => sum + item.price * item.quantity,
     0
   );
 
+  const handleOrder = async () => {
+    try {
+      const tableId = `${localStorage.getItem("tableId")}`;
+      const orderData: OrderData = {
+        tableId,
+        note: "Gọi từ giỏ hàng",
+        items: cart.map((item: any) => ({
+          menuId: item.id,
+          quantity: item.quantity,
+          note: item.note || "",
+        })),
+      };
+
+      const res = await createOrder(orderData);
+
+      addOrderId(res.id);
+
+      showNotification("Đặt món thành công!");
+
+      router.push("/order");
+      setOpen(false);
+    } catch (error) {
+      showNotification("Đặt món không thành công!", "error");
+      setOpen(false);
+    }
+  };
+
   return (
     <>
       {/* Nút giỏ hàng */}
+      <NotificationComponent></NotificationComponent>
       <button
         onClick={() => setOpen(true)}
         className="relative bg-yellow-400 text-gray-800 p-2 rounded-full shadow-md hover:bg-yellow-300 transition"
@@ -51,7 +104,7 @@ export function ShoppingCartButton() {
             <p className="text-gray-500">Giỏ hàng của bạn đang trống.</p>
           ) : (
             <ul className="space-y-4">
-              {cart.map((item : any) => (
+              {cart.map((item: any) => (
                 <li key={item.id} className="flex flex-col gap-2 border-b pb-2">
                   <div className="flex gap-4 items-center">
                     <img
@@ -60,18 +113,21 @@ export function ShoppingCartButton() {
                       className="w-16 h-16 object-cover rounded"
                     />
                     <div className="flex-1">
-                      <h3 className="font-semibold">{item.name}</h3>
+                      <h3 className="font-semibold text-[#FF6900]">
+                        {item.name}
+                      </h3>
                       <p className="text-sm text-gray-500">
                         {item.price.toLocaleString()}₫ / 1 cái
                       </p>
                     </div>
-                    {/* Nút xóa */}
-                    <button onClick={() => removeFromCart(item.id)} className="text-red-500 hover:text-red-700">
+                    <button
+                      onClick={() => removeFromCart(item.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
                       <Trash className="w-5 h-5" />
                     </button>
                   </div>
 
-                  {/* Số lượng */}
                   <div className="flex items-center gap-2">
                     <button
                       onClick={() => updateQuantity(item.id, item.quantity - 1)}
@@ -96,7 +152,7 @@ export function ShoppingCartButton() {
                     placeholder="Thêm ghi chú..."
                     className="w-full border rounded px-2 py-1 text-sm text-gray-500"
                   />
-                  
+
                   {/* Tổng tiền từng món */}
                   <p className="text-red-500 text-right font-semibold">
                     {(item.price * item.quantity).toLocaleString()}₫
@@ -112,7 +168,11 @@ export function ShoppingCartButton() {
           <p className="font-semibold text-red-500">
             Tổng cộng: {totalPrice.toLocaleString()}₫
           </p>
-          <button className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-400 transition">
+          <button
+            disabled={!tableId || cart.length === 0}
+            className="bg-orange-500 text-white px-4 py-2 rounded-lg hover:bg-orange-400 transition"
+            onClick={handleOrder}
+          >
             Đặt Món
           </button>
         </div>

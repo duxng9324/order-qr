@@ -8,6 +8,7 @@ interface MenuCardProps {
   price: number;
   images?: string[];
   onAddToCart?: (id: string | number) => void;
+  onClick?: (id: string | number) => void; 
 }
 
 export default function MenuCard({
@@ -16,11 +17,13 @@ export default function MenuCard({
   price,
   images,
   onAddToCart,
+  onClick
 }: MenuCardProps) {
   return (
     <div
       key={id}
       className="relative group bg-white rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all duration-300 overflow-hidden"
+      onClick={() => onClick?.(id)}
     >
       <div className="relative w-full aspect-[4/3]">
         <img
