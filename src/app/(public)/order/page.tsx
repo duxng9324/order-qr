@@ -1,8 +1,9 @@
 "use client";
 
 import { getOrderById } from "@/composable/services/orderServices";
+import { useOrderContext } from "@/context/OrderContext";
 import { useEffect, useState } from "react";
-import { useOrderContext } from "../../context/OrderContext";
+
 
 export default function OrderPage() {
   const { orderIds, clearOrders } = useOrderContext();

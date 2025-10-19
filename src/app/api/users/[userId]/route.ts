@@ -31,7 +31,7 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  context: { params: Promise<{ id: string }> }
 ) {
   try {
     const authHeader = req.headers.get("authorization");
@@ -48,7 +48,7 @@ export async function PATCH(
       );
     }
 
-    const id = await params.id;
+    const { id } = await context.params;
     const { role } = await req.json();
     const updatedUser = await prisma.user.update({
       where: { id },
@@ -59,6 +59,35 @@ export async function PATCH(
   } catch (error) {
     return NextResponse.json(
       { error: "Lỗi khi cập nhật vai trò!" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE (req: Request, context: { params: Promise<{id: string}>}) {
+  try {
+    const authHeader = req.headers.get("authorization");
+    if (!authHeader) {
+      return NextResponse.json({ error: "Thiếu token!" }, { status: 401 });
+    }
+    const token = authHeader.replace("Bearer ", "");
+    const decoded: any = jwt.verify(token, JWT_SECRET);
+
+    if (decoded.role !== "ADMIN") {
+      return NextResponse.json(
+        { error: "Bạn không có quyền!" },
+        { status: 403 }
+      );
+    }
+
+    const { id } = await context.params;
+    const updatedUser = await prisma.user.delete({
+      where: { id },
+    });
+    return NextResponse.json(updatedUser);
+  } catch (error) {
+    return NextResponse.json(
+      { error: "Lỗi khi xóa người dùng!" },
       { status: 500 }
     );
   }

@@ -3,6 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { login } from "@/composable/services/authServices";
+import { getMe } from "@/composable/services/userServices";
+import Cookies from "js-cookie";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -17,15 +19,24 @@ export default function LoginPage() {
     setError("");
 
     try {
-
-        console.log(email);
-        console.log(password);
-
       const res = await login({ email, password });
 
-      if (!res?.token) throw new Error("Đăng nhập thất bại! Sai tài khoản hoặc mật khẩu.");
+      if (!res?.token)
+        throw new Error("Đăng nhập thất bại! Sai tài khoản hoặc mật khẩu.");
+
+      const me = await getMe(res.token);
 
       localStorage.setItem("token", res.token);
+      localStorage.setItem("name", me?.name);
+      localStorage.setItem("email", me?.email);
+      localStorage.setItem("phone", me?.phone);
+
+      Cookies.set("token", res.token, {
+        expires: 1, // 1 ngày
+        path: "/", // cookie áp dụng toàn site
+        secure: process.env.NODE_ENV === "production", // HTTPS only nếu production
+        sameSite: "strict",
+      });
 
       router.push("/dashboard");
     } catch (err: any) {
@@ -88,7 +99,10 @@ export default function LoginPage() {
 
         <p className="text-center text-gray-500 mt-6">
           Chưa có tài khoản?{" "}
-          <a href="/auth/register" className="text-amber-600 font-medium hover:underline">
+          <a
+            href="/auth/register"
+            className="text-amber-600 font-medium hover:underline"
+          >
             Đăng ký ngay
           </a>
         </p>

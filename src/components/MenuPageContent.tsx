@@ -2,10 +2,10 @@
 import { useCart } from "@/context/CartContext";
 import MenuCard from "@/components/MenuCard";
 import { useNotification } from "@/components/useNotification";
-import { getListMenu } from "@/composable/services/menuServices";
 import { getTableById } from "@/composable/services/tableServices";
 import { useParams, usePathname, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { getMenuItems } from "@/composable/services/menuServices";
 
 export default function MenuPageContent() {
   const [menu, setMenu] = useState<any[]>([]);
@@ -25,7 +25,7 @@ export default function MenuPageContent() {
 
   useEffect(() => {
     const fetchMenu = async () => {
-      const menu = await getListMenu();
+      const menu = await getMenuItems();
       setMenu(menu);
     };
     fetchMenu();

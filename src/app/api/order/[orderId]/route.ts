@@ -1,19 +1,22 @@
 import { prisma } from "@/lib/prisma";
 import { NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function GET(
   req: Request,
-  { params }: { params: { orderId: string } }
+  context: { params: Promise<{ orderId: string }> }
 ) {
   try {
-    const id = params.orderId;
+    const { orderId } = await context.params;
 
-    if (!id || id.length !== 24) {
+    if (!orderId || orderId.length !== 24) {
       return NextResponse.json({ error: "Invalid order ID" }, { status: 400 });
     }
 
     const order = await prisma.order.findUnique({
-      where: { id },
+      where: { id: orderId },
       include: {
         items: {
           include: { menuItem: true },
@@ -35,10 +38,29 @@ export async function GET(
 }
 
 export async function PATCH(
-  req: Request,
+  request: Request,
   { params }: { params: { orderId: string } }
 ) {
-  const { status } = await req.json();
+  const authHeader = request.headers.get("authorization");
+  if (!authHeader) {
+    return NextResponse.json({ error: "Thiếu token!" }, { status: 401 });
+  }
+
+  const token = authHeader.replace("Bearer ", "");
+  let decoded: any;
+  try {
+    decoded = jwt.verify(token, JWT_SECRET);
+  } catch {
+    return NextResponse.json({ error: "Token không hợp lệ!" }, { status: 401 });
+  }
+
+  if (decoded.role !== "ADMIN" && decoded.role !== "STAFF") {
+    return NextResponse.json(
+      { error: "Bạn không có quyền chỉnh sửa" },
+      { status: 403 }
+    );
+  }
+  const { status } = await request.json();
   const id = await params.orderId;
 
   const updatedOrder = await prisma.order.update({

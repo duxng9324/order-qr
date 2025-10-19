@@ -61,8 +61,8 @@ model CategoryOnMenuItem {
 
 model Order {
   id      String @id @default(auto()) @map("_id") @db.ObjectId
-  tableId String @db.ObjectId
-  table   Table  @relation(fields: [tableId], references: [id])
+  tableId String? @db.ObjectId
+  table   Table?  @relation(fields: [tableId], references: [id])
 
   userId String? @db.ObjectId
   user   User?   @relation(fields: [userId], references: [id])
