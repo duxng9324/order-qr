@@ -120,7 +120,7 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
             <hr />
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 p-2 rounded-lg text-error hover:bg-error/10 w-full"
+              className="flex items-center gap-3 p-2 rounded-lg text-error hover:bg-error/10 w-full cursor-pointer"
             >
               <LogOut size={18} /> Đăng xuất
             </button>
