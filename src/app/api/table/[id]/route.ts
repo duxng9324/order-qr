@@ -26,7 +26,7 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } }
+  context: {params: Promise<{id : string}>}
 ) {
   try {
     const authHeader = await req.headers.get("authorization");
@@ -52,7 +52,7 @@ export async function PATCH(
       );
     }
 
-    const id = await params.id;
+    const {id} = await context.params;
     const data = await req.json();
     const updateTable = await prisma.table.update({
       where: { id },

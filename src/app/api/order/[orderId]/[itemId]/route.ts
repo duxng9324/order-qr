@@ -3,12 +3,12 @@ import { NextResponse } from "next/server";
 
 export async function GET(
   req: Request,
-  { params }: { params: { itemId: string } }
+  context: {params: Promise<{itemId : string}>}
 ) {
   try {
-    const id = await params.itemId;
+    const {itemId} = await context.params;
     const orderItem = await prisma.orderItem.findMany({
-      where: { id },
+      where: { id: itemId },
       select: {
         id: true,
         orderId: true,
@@ -29,13 +29,13 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { itemId: string } }
+  context: {params: Promise<{itemId : string}>}
 ) {
   try {
-    const id = await params.itemId;
+    const {itemId} = await context.params;
     const { quantity } = await req.json();
     const updateOrderItem = await prisma.orderItem.update({
-      where: { id },
+      where: { id: itemId },
       data: { quantity },
       select: {
         id: true,
@@ -57,12 +57,12 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { itemId: string } }
+  context: {params: Promise<{itemId : string}>}
 ) {
   try {
-    const id = await params.itemId;
+    const {itemId} = await context.params;
     const delOrderItem = await prisma.orderItem.delete({
-      where: { id },
+      where: { id: itemId },
     });
     return NextResponse.json(delOrderItem);
   } catch (error) {

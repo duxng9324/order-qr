@@ -39,7 +39,7 @@ export async function GET(
 
 export async function PATCH(
   request: Request,
-  { params }: { params: { orderId: string } }
+  context: {params: Promise<{orderId : string}>}
 ) {
   const authHeader = request.headers.get("authorization");
   if (!authHeader) {
@@ -61,10 +61,10 @@ export async function PATCH(
     );
   }
   const { status } = await request.json();
-  const id = await params.orderId;
+  const {orderId} = await context.params;
 
   const updatedOrder = await prisma.order.update({
-    where: { id },
+    where: { id: orderId},
     data: { status },
   });
 
@@ -73,12 +73,12 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { orderId: string } }
+  context: {params: Promise<{orderId : string}>}
 ) {
   try {
-    const id = await params.orderId;
+    const {orderId} = await context.params;
     const delOrder = await prisma.order.delete({
-      where: { id },
+      where: { id: orderId },
     });
     return NextResponse.json(delOrder);
   } catch (error) {
