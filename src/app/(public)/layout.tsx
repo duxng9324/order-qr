@@ -1,8 +1,7 @@
 import { CartProvider } from "@/context/CartContext";
-import "./globals.css";
-import { OrderProvider } from "../context/OrderContext";
+import "../globals.css";
 import Header from "@/components/Header";
-import Link from "next/link";
+import { OrderProvider } from "@/context/OrderContext";
 
 export const metadata = {
   title: "QR Food - Order by QR Code",
