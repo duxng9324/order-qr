@@ -5,6 +5,7 @@ import { ShoppingCartButton } from "@/components/ShopingCartButton";
 import { Menu, X, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
+import Cookies from "js-cookie";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -20,6 +21,7 @@ export default function Header() {
   // 🔹 Hàm đăng xuất
   const handleLogout = () => {
     localStorage.removeItem("token");
+    Cookies.remove("token");
     setIsLoggedIn(false);
     router.push("/auth/login");
   };

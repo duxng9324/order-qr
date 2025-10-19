@@ -1,45 +1,68 @@
 "use client";
 
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import {
   Menu,
   X,
   LogOut,
-  Settings,
   Home,
   UtensilsCrossed,
   BarChart3,
   Table,
   Wine,
+  UserRoundPlus,
 } from "lucide-react";
 import { usePathname, useRouter } from "next/navigation";
+import { getMe } from "@/composable/services/userServices";
+import Cookies from "js-cookie";
 
 export default function DashboardShell({ children }: { children: ReactNode }) {
   const [open, setOpen] = useState(false);
+  const [role, setRole] = useState<string | null>(null);
   const pathname = usePathname();
   const router = useRouter();
 
+  useEffect(() => {
+    const fetchMe = async () => {
+      const token = localStorage.getItem("token") || "";
+      const me = await getMe(token);
+    
+      if(me.role !== "STAFF" && me.role !== "ADMIN") {
+        router.push("/")
+      }
+
+      setRole(me.role);
+    }
+
+    fetchMe();
+  }, []);
+
   const links = [
     { href: "/dashboard", label: "Trang chủ", icon: Home },
-    { href: "/dashboard/tables", label: "Bàn ăn", icon: Wine},
+    { href: "/dashboard/tables", label: "Bàn ăn", icon: Wine },
     { href: "/dashboard/orders", label: "Đơn hàng", icon: UtensilsCrossed },
     { href: "/dashboard/menu", label: "Món ăn", icon: Table },
     { href: "/dashboard/statistics", label: "Thống kê", icon: BarChart3 },
-    { href: "/dashboard/settings", label: "Cài đặt", icon: Settings },
   ];
+
+  if (role === "ADMIN") {
+    links.push({ href: "/dashboard/staff", label: "Nhân viên", icon: UserRoundPlus });
+  }
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    Cookies.remove("token");
     router.push("/auth/login");
   };
 
   return (
     <div className="flex flex-col min-h-screen">
-      {/* Navbar top */}
-      <div className="navbar bg-base-100 shadow-sm px-4 sticky top-0 z-30">
+      {/* Navbar */}
+      <div className="navbar bg-base-100 shadow-sm px-4 sticky top-0 z-50">
         <div className="flex-1">
           <button
-            className="btn btn-ghost btn-square lg:hidden z-20"
+            className="btn btn-ghost btn-square lg:hidden"
             onClick={() => setOpen(!open)}
           >
             {open ? <X size={24} /> : <Menu size={24} />}
@@ -74,28 +97,23 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
                 <a href="/dashboard/settings">Cài đặt</a>
               </li>
               <li>
-                <a href="/logout" className="text-error">
+                <button
+                  onClick={handleLogout}
+                  className="text-error text-left w-full"
+                >
                   Đăng xuất
-                </a>
+                </button>
               </li>
             </ul>
           </div>
         </div>
       </div>
 
-      {/* Container */}
-      <div className="flex flex-1 fixed mt-[60px] w-full">
-        {/* Overlay cho mobile khi mở sidebar */}
-        {open && (
-          <div
-            className="fixed inset-0 bg-black/40 z-20 lg:hidden"
-            onClick={() => setOpen(false)}
-          />
-        )}
-
+      {/* Main layout */}
+      <div className="flex flex-1">
         {/* Sidebar */}
         <aside
-          className={`bg-base-100 w-64 p-4 shadow-md fixed lg:sticky top-0 left-0 h-screen z-30 transform transition-transform duration-300 ease-in-out
+          className={`bg-base-100 w-64 p-4 shadow-md fixed lg:sticky top-[60px] left-0 h-[calc(100vh-60px)] z-40 transition-transform duration-300 ease-in-out
           ${open ? "translate-x-0" : "-translate-x-full"} lg:translate-x-0`}
         >
           <nav className="space-y-2">
@@ -120,15 +138,29 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
             <hr />
             <button
               onClick={handleLogout}
-              className="flex items-center gap-3 p-2 rounded-lg text-error hover:bg-error/10 w-full cursor-pointer"
+              className="flex items-center cursor-pointer gap-3 p-2 rounded-lg text-error hover:bg-error/10 w-full"
             >
               <LogOut size={18} /> Đăng xuất
             </button>
           </nav>
         </aside>
 
+        {/* Overlay for mobile */}
+        {open && (
+          <div
+            className="fixed inset-0 bg-black/40 z-30 lg:hidden"
+            onClick={() => setOpen(false)}
+          />
+        )}
+
         {/* Main content */}
-        <main className="flex-1 p-6 overflow-y-auto">{children}</main>
+        <main
+          className={`flex-1 p-6 overflow-y-auto transition-all duration-300 bg-white
+          ${open ? "ml-0 lg:ml-64" : "ml-0"}`}
+          style={{ minHeight: "calc(100vh - 60px)" }}
+        >
+          {children}
+        </main>
       </div>
     </div>
   );

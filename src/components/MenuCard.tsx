@@ -34,8 +34,11 @@ export default function MenuCard({
         />
 
         <button
-          onClick={() => onAddToCart?.(id)}
-          className="absolute top-3 right-3 bg-orange-500 text-white p-2 rounded-full shadow-lg opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-orange-600"
+          onClick={(e) => {
+            e.stopPropagation();
+            onAddToCart?.(id);
+          }}
+          className="absolute cursor-pointer top-3 right-3 bg-orange-500 text-white p-2 rounded-full shadow-lg opacity-0 translate-y-3 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 hover:bg-orange-600"
           title="Thêm vào giỏ hàng"
         >
           <ShoppingCart className="w-5 h-5" />

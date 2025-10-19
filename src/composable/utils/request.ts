@@ -2,7 +2,7 @@ const URL_BASE = process.env.NEXT_PUBLIC_BASE_URL;
 
 export async function fetchWithJWT<T = any>(
   endpoint: string,
-  method: "GET" | "POST" | "PUT" | "DELETE" = "GET",
+  method: "GET" | "POST" | "PATCH" | "DELETE" = "GET",
   body?: any,
   token?: string
 ): Promise<T> {
