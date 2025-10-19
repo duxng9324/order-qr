@@ -6,12 +6,12 @@ const JWT_SECRET = process.env.JWT_SECRET || "your-secret-key";
 
 export async function GET(
   req: Request,
-  { params }: { params: { id: string } }
+  context: {params: Promise<{userId : string}>}
 ) {
   try {
-    const id = await params.id;
+    const {userId} = await context.params;
     const user = await prisma.user.findUnique({
-      where: { id },
+      where: { id: userId },
       select: { id: true, name: true, email: true, phone: true, role: true },
     });
     if (!user) {
