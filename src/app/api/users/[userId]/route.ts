@@ -31,7 +31,7 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  context: { params: Promise<{ id: string }> }
+  context: { params: Promise<{ userId: string }> }
 ) {
   try {
     const authHeader = req.headers.get("authorization");
@@ -48,10 +48,10 @@ export async function PATCH(
       );
     }
 
-    const { id } = await context.params;
+    const { userId } = await context.params;
     const { role } = await req.json();
     const updatedUser = await prisma.user.update({
-      where: { id },
+      where: { id: userId },
       data: { role },
       select: { id: true, name: true, email: true, phone: true, role: true },
     });
@@ -64,7 +64,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE (req: Request, context: { params: Promise<{id: string}>}) {
+export async function DELETE (req: Request, context: { params: Promise<{userId: string}>}) {
   try {
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
@@ -80,9 +80,9 @@ export async function DELETE (req: Request, context: { params: Promise<{id: stri
       );
     }
 
-    const { id } = await context.params;
+    const { userId } = await context.params;
     const updatedUser = await prisma.user.delete({
-      where: { id },
+      where: { id: userId },
     });
     return NextResponse.json(updatedUser);
   } catch (error) {
