@@ -21,6 +21,7 @@ export default function Header() {
   // 🔹 Hàm đăng xuất
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("cart")
     Cookies.remove("token");
     setIsLoggedIn(false);
     router.push("/auth/login");

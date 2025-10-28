@@ -24,15 +24,22 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
 
   useEffect(() => {
     const fetchMe = async () => {
-      const token = localStorage.getItem("token") || "";
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        router.push("/");
+        return;
+      }
+
       const me = await getMe(token);
-    
-      if(me.role !== "STAFF" && me.role !== "ADMIN") {
-        router.push("/")
+
+      if (me.role !== "STAFF" && me.role !== "ADMIN") {
+        router.push("/");
+        return;
       }
 
       setRole(me.role);
-    }
+    };
 
     fetchMe();
   }, []);
@@ -46,12 +53,17 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
   ];
 
   if (role === "ADMIN") {
-    links.push({ href: "/dashboard/staff", label: "Nhân viên", icon: UserRoundPlus });
+    links.push({
+      href: "/dashboard/staff",
+      label: "Nhân viên",
+      icon: UserRoundPlus,
+    });
   }
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("cart");
     Cookies.remove("token");
     router.push("/auth/login");
   };
@@ -67,7 +79,10 @@ export default function DashboardShell({ children }: { children: ReactNode }) {
           >
             {open ? <X size={24} /> : <Menu size={24} />}
           </button>
-          <a href="/dashboard" className="text-xl font-bold text-amber-500 ml-2">
+          <a
+            href="/dashboard"
+            className="text-xl font-bold text-amber-500 ml-2"
+          >
             QRFood
           </a>
         </div>
